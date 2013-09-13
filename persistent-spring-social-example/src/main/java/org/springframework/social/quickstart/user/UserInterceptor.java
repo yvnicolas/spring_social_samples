@@ -24,26 +24,34 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.springframework.web.servlet.view.RedirectView;
 
 /**
- * Before a request is handled:
- * 1. sets the current User in the {@link SecurityContext} from a cookie, if present and the user is still connected to Facebook.
- * 2. requires that the user sign-in if he or she hasn't already.
+ * Before a request is handled: 1. sets the current User in the
+ * {@link SecurityContext} from a cookie, if present and the user is still
+ * connected to Facebook. 2. requires that the user sign-in if he or she hasn't
+ * already.
+ * 
  * @author Keith Donald
  */
 public final class UserInterceptor extends HandlerInterceptorAdapter {
 
 	private final UsersConnectionRepository connectionRepository;
-	
+
 	private final UserCookieGenerator userCookieGenerator = new UserCookieGenerator();
 
 	public UserInterceptor(UsersConnectionRepository connectionRepository) {
 		this.connectionRepository = connectionRepository;
 	}
-	
+
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 		User  potentialUser = rememberUser(request, response);
 		
-		// Let the potential signin requests go thru
-		if (request.getServletPath().contains("/signin"))
+		
+		// Handle the requests that should go thru
+		if (request.getServletPath().contains("/signinconfirm")){
+			SecurityContext.setCurrentUser(potentialUser);
+		return true;
+		}
+		
+		if ((request.getServletPath().equals("/signin") ) ||(request.getServletPath().equals("/signin/facebook") ) || (request.getServletPath().equals("/signinfb")) )
 			return true;
 		
 		// checking whether connection do the application has been made
@@ -57,56 +65,81 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
 			return false;
 		}
 	    // Signing out	
-		handleSignOut(request, response);
+		if (handleSignOut(request, response)) {
+			new RedirectView("/bye", true).render(null, request, response);
+			return false;
+		}
 
 		// At this stage, we can proceed to the regular controller as signing is effective
 		return true;
 	}
-	
-	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-		SecurityContext.remove();
+
+	public void afterCompletion(HttpServletRequest request,
+			HttpServletResponse response, Object handler, Exception ex)
+			throws Exception {
+
+		// SecurityContext.remove();
 	}
 
 	// internal helpers
 
-	
 	// Gets a potential user ID from cookies existing on the system.
-	private User rememberUser(HttpServletRequest request, HttpServletResponse response) {
+	private User rememberUser(HttpServletRequest request,
+			HttpServletResponse response) {
 		String userId = userCookieGenerator.readCookieValue(request);
 		if (userId == null) {
-			return null;
+			userId = getNewId();
 		}
-		if (!userNotFound(userId)) {
+		else if (!userNotFound(userId)) {
 			userCookieGenerator.removeCookie(response);
-			return null;
-		}
-		return(new User(userId));
+						}
+		else userId = getNewId();
+		
+		//At this stage get a new user
+		return (new User(userId));
 	}
 
-	private void handleSignOut(HttpServletRequest request, HttpServletResponse response) {
-		if (SecurityContext.userSignedIn() && request.getServletPath().startsWith("/signout")) {
-			connectionRepository.createConnectionRepository(SecurityContext.getCurrentUser().getId()).removeConnections("facebook");
+	// If signout has been asked for sign out
+	private boolean handleSignOut(HttpServletRequest request,
+			HttpServletResponse response) {
+		if (SecurityContext.userSignedIn()
+				&& request.getServletPath().startsWith("/signout")) {
+			connectionRepository.createConnectionRepository(
+					SecurityContext.getCurrentUser().getId())
+					.removeConnections("facebook");
 			userCookieGenerator.removeCookie(response);
-			SecurityContext.remove();			
-		}
+			SecurityContext.remove();
+			return true;
+		} else
+			return false;
 	}
-		
+
 	private boolean requestForSignIn(HttpServletRequest request) {
 		return request.getServletPath().startsWith("/signin");
 	}
-	
-	private boolean requireSignIn(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+	private boolean requireSignIn(HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
 		new RedirectView("/signin", true).render(null, request, response);
 		return false;
 	}
 
 	private boolean userNotFound(String userId) {
 		// pour premiers essais : on est toujours supposé etre un nouveau.
-		return true;
+		return (userId == "");
 	}
+
 	private boolean FacebookAuthorized(String userId) {
-		// doesn't bother checking a local user database: simply checks if the userId is connected to Facebook
-		return connectionRepository.createConnectionRepository(userId).findPrimaryConnection(Facebook.class) != null;
+		// doesn't bother checking a local user database: simply checks if the
+		// userId is connected to Facebook
+		return connectionRepository.createConnectionRepository(userId)
+				.findPrimaryConnection(Facebook.class) != null;
 	}
 	
+	private static int userIncrement=0;
+	private String getNewId() {
+		userIncrement++;
+		return String.format("%s",userIncrement);
+	}
+
 }
