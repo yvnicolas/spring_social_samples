@@ -6,6 +6,9 @@
 	</head>
 	<body>
 		Ca Marche!
-		  <button type="submit" action='<c:url> "/" </c:url>'>Continuer</button>
+		  <ul class="right">
+			<li class="has-form"><a id="login" href="<c:url value='/'/>" class="button">Se connecter</a></li>
+	
+		</ul>
 	</body>
 </html>
