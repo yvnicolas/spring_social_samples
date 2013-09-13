@@ -40,13 +40,27 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
 	}
 	
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-		rememberUser(request, response);
-		handleSignOut(request, response);			
-		if (SecurityContext.userSignedIn() || requestForSignIn(request)) {
+		User  potentialUser = rememberUser(request, response);
+		
+		// Let the potential signin requests go thru
+		if (request.getServletPath().contains("/signin"))
 			return true;
-		} else {
-			return requireSignIn(request, response);
+		
+		// checking whether connection do the application has been made
+		if (!SecurityContext.userSignedIn()) {
+			new RedirectView("/signin", true).render(null, request, response);
+						return false;
 		}
+		// checking whether connection to facebook has been made :
+		if (!FacebookAuthorized(potentialUser.getId())) {
+			new RedirectView("/signinfb", true).render(null, request, response);
+			return false;
+		}
+	    // Signing out	
+		handleSignOut(request, response);
+
+		// At this stage, we can proceed to the regular controller as signing is effective
+		return true;
 	}
 	
 	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
@@ -55,16 +69,18 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
 
 	// internal helpers
 
-	private void rememberUser(HttpServletRequest request, HttpServletResponse response) {
+	
+	// Gets a potential user ID from cookies existing on the system.
+	private User rememberUser(HttpServletRequest request, HttpServletResponse response) {
 		String userId = userCookieGenerator.readCookieValue(request);
 		if (userId == null) {
-			return;
+			return null;
 		}
 		if (!userNotFound(userId)) {
 			userCookieGenerator.removeCookie(response);
-			return;
+			return null;
 		}
-		SecurityContext.setCurrentUser(new User(userId));
+		return(new User(userId));
 	}
 
 	private void handleSignOut(HttpServletRequest request, HttpServletResponse response) {
@@ -85,6 +101,10 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
 	}
 
 	private boolean userNotFound(String userId) {
+		// pour premiers essais : on est toujours supposé etre un nouveau.
+		return true;
+	}
+	private boolean FacebookAuthorized(String userId) {
 		// doesn't bother checking a local user database: simply checks if the userId is connected to Facebook
 		return connectionRepository.createConnectionRepository(userId).findPrimaryConnection(Facebook.class) != null;
 	}

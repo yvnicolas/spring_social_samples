@@ -5,9 +5,11 @@
 		<title>Sign In</title>
 	</head>
 	<body>
-		<form action="<c:url value="/signin/facebook" />" method="POST">
-		    <button type="submit">Sign in with Facebook</button>
-		    <input type="hidden" name="scope" value="email,publish_stream,offline_access" />		    
-		</form>
+	Bonjour tout le monde
+		  <ul class="right">
+			<li class="has-form"><a id="login" href="<c:url value='/camarche'/>" class="button">Se connecter</a></li>
+			<li class="has-form"><a id="signin" href="<c:url value='/camarche'/>" class="button">S'inscrire</a></li>
+		</ul>
+		
 	</body>
 </html>
