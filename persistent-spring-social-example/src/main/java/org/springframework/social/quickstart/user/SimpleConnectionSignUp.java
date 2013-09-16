@@ -24,8 +24,9 @@ import org.springframework.social.connect.ConnectionSignUp;
  * at this stage Supposes here that the new id is given by the application
  * security context as the user should have signed in into the application
  * before.
+ * It is called directly by Spring social, thru the UsersConnectionRepository
  * 
- * @author Yves Nicolas
+ * @author Yves Nicolas From Keith Donalds
  */
 
 // set in the creation of the userconnectionrepository, is called to get a new

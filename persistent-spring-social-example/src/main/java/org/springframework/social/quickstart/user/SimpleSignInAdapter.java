@@ -22,6 +22,10 @@ import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.web.SignInAdapter;
 import org.springframework.web.context.request.NativeWebRequest;
 
+
+/** This function is called by Spring Social during connection to Facebook Process
+ * Passed to Spring environment thru the ProviderSigninController inside SocialConfig.java
+ */
 /**
  * Signs the user in by setting the currentUser property on the {@link SecurityContext}.
  * Remembers the sign-in after the current request completes by storing the user's id in a cookie.

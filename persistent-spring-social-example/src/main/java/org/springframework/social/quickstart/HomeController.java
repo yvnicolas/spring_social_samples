@@ -19,8 +19,14 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.springframework.social.connect.ConnectionFactory;
+import org.springframework.social.connect.ConnectionFactoryLocator;
+import org.springframework.social.connect.support.OAuth2ConnectionFactory;
 import org.springframework.social.facebook.api.Facebook;
 import org.springframework.social.facebook.api.Reference;
+import org.springframework.social.facebook.connect.FacebookConnectionFactory;
+import org.springframework.social.oauth2.OAuth2Operations;
+import org.springframework.social.oauth2.OAuth2Parameters;
 import org.springframework.social.quickstart.config.Uris;
 import org.springframework.social.quickstart.user.SecurityContext;
 import org.springframework.social.quickstart.user.User;
@@ -64,6 +70,7 @@ public class HomeController {
 		mav.addObject("nom", id);
 		return mav;
 	}
+
 	
 	
 
