@@ -21,6 +21,7 @@ import javax.inject.Inject;
 
 import org.springframework.social.facebook.api.Facebook;
 import org.springframework.social.facebook.api.Reference;
+import org.springframework.social.quickstart.config.Uris;
 import org.springframework.social.quickstart.user.SecurityContext;
 import org.springframework.social.quickstart.user.User;
 import org.springframework.stereotype.Controller;
@@ -48,18 +49,18 @@ public class HomeController {
 		this.facebook = facebook;
 	}
 
-	@RequestMapping(value = "/", method = RequestMethod.GET)
+	@RequestMapping(value = Uris.MAIN, method = RequestMethod.GET)
 	public String home(Model model) {
 		List<Reference> friends = facebook.friendOperations().getFriends();
 		model.addAttribute("friends", friends);
-		return "home";
+		return Uris.WORK;
 	}
 	
-	@RequestMapping(value="/inscription", method = RequestMethod.POST) 
+	@RequestMapping(value=Uris.IDPROCESS, method = RequestMethod.POST) 
 		public ModelAndView login (@RequestParam("id") String id){
 		
 		SecurityContext.setCurrentUser(new User(id));
-		ModelAndView mav = new ModelAndView("signinconfirm");
+		ModelAndView mav = new ModelAndView(Uris.SIGNINCONFIRM);
 		mav.addObject("nom", id);
 		return mav;
 	}

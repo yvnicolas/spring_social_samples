@@ -1,3 +1,4 @@
+<%@page import="org.springframework.social.quickstart.config.Uris"%>
 <%@ page session="false" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <html>
@@ -6,7 +7,7 @@
 	</head>
 	<body>
 	<ul>
-		<li><a href="<c:url value="/signout" />">Sign Out</a></li>
+		<li><a href="<c:url value="<%=Uris.SIGNOUT %>" />">Sign Out</a></li>
 	</ul>
 	<h3>Your Facebook Friends</h3>
 	<ul>

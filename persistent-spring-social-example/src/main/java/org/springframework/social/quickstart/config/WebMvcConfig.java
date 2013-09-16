@@ -41,20 +41,20 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
 	}
 
 	public void addViewControllers(ViewControllerRegistry registry) {
-		registry.addViewController("/signin");
-		registry.addViewController("/signout");
-//		registry.addViewController("/signinconfirm");
-		registry.addViewController("/signinfb");
-		registry.addViewController("/subscriberinput");
-		registry.addViewController("/bye");
+		registry.addViewController(Uris.SIGNIN);
+		registry.addViewController(Uris.SIGNOUT);
+		registry.addViewController(Uris.SIGNINCONFIRM);
+		registry.addViewController(Uris.SIGNINFB);
+		registry.addViewController(Uris.APPLICATIONIDINPUT);
+		registry.addViewController(Uris.BYE);
 
 	}
 
 	@Bean
 	public ViewResolver viewResolver() {
 		InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
-		viewResolver.setPrefix("/WEB-INF/views/");
-		viewResolver.setSuffix(".jsp");
+		viewResolver.setPrefix(Uris.VIEWS);
+		viewResolver.setSuffix(Uris.SUFFIX);
 		return viewResolver;
 	}
 

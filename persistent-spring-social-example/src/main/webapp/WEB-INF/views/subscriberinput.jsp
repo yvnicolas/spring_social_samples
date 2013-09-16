@@ -1,3 +1,4 @@
+<%@page import="org.springframework.social.quickstart.config.Uris"%>
 <%@ page session="false"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ page isELIgnored="false"%>
@@ -9,9 +10,10 @@
 </head>
 <body>
 
-	<p>Please Signin</p>
+	<p>Please Signin - Signup (no difference at this stage)</p>
 
-	<form action="/persistent-spring-social/inscription" method="POST">
+	<%-- Needs to add the main prefix here although I do not understand why --%>
+	<form action="<%=Uris.URISPREFIX + Uris.IDPROCESS%>" method="POST">
 
 		<table>
 			<tr>

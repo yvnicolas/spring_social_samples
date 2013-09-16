@@ -1,3 +1,4 @@
+<%@page import="org.springframework.social.quickstart.config.Uris"%>
 <%@ page session="false" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <html>
@@ -5,10 +6,11 @@
 		<title>Sign In</title>
 	</head>
 	<body>
-	Bonjour tout le monde
-		  <ul class="right">
-			<li class="has-form"><a id="login" href="<c:url value='/subscriberinput'/>" class="button">Se connecter</a></li>
-		</ul>
-		
+	Bonjour tout le monde!
+	
+		<form action="<c:url value="<%=Uris.APPLICATIONIDINPUT %>" />">
+		<button type="submit">Connect to the application</button>
+	</form>
+			
 	</body>
 </html>
