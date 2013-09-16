@@ -7,8 +7,7 @@
 	<body>
 	Bonjour tout le monde
 		  <ul class="right">
-			<li class="has-form"><a id="login" href="<c:url value='/signinconfirm'/>" class="button">Se connecter</a></li>
-			<li class="has-form"><a id="signin" href="<c:url value='/signinconfirm'/>" class="button">S'inscrire</a></li>
+			<li class="has-form"><a id="login" href="<c:url value='/subscriberinput'/>" class="button">Se connecter</a></li>
 		</ul>
 		
 	</body>

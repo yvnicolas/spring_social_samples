@@ -21,11 +21,14 @@ import javax.inject.Inject;
 
 import org.springframework.social.facebook.api.Facebook;
 import org.springframework.social.facebook.api.Reference;
-import org.springframework.social.quickstart.user.UserCookieGenerator;
+import org.springframework.social.quickstart.user.SecurityContext;
+import org.springframework.social.quickstart.user.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  * Simple little @Controller that invokes Facebook and renders the result. The
@@ -39,7 +42,6 @@ public class HomeController {
 
 	private final Facebook facebook;
 
-	private final UserCookieGenerator userCookieGenerator = new UserCookieGenerator();
 
 	@Inject
 	public HomeController(Facebook facebook) {
@@ -52,5 +54,16 @@ public class HomeController {
 		model.addAttribute("friends", friends);
 		return "home";
 	}
+	
+	@RequestMapping(value="/inscription", method = RequestMethod.POST) 
+		public ModelAndView login (@RequestParam("id") String id){
+		
+		SecurityContext.setCurrentUser(new User(id));
+		ModelAndView mav = new ModelAndView("signinconfirm");
+		mav.addObject("nom", id);
+		return mav;
+	}
+	
+	
 
 }

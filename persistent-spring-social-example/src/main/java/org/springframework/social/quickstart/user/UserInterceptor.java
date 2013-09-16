@@ -42,15 +42,20 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
 	}
 
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-		User  potentialUser = rememberUser(request, response);
+		rememberUser(request, response);
 		
 		
 		// Handle the requests that should go thru
 		if (request.getServletPath().contains("/signinconfirm")){
-			SecurityContext.setCurrentUser(potentialUser);
-		return true;
+			return true;
 		}
 		
+		if (request.getServletPath().contains("/subscriberinput"))
+			return true; 
+	
+		if (request.getServletPath().contains("/inscription"))
+			return true; 
+
 		if ((request.getServletPath().equals("/signin") ) ||(request.getServletPath().equals("/signin/facebook") ) || (request.getServletPath().equals("/signinfb")) )
 			return true;
 		
@@ -60,7 +65,7 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
 						return false;
 		}
 		// checking whether connection to facebook has been made :
-		if (!FacebookAuthorized(potentialUser.getId())) {
+		if (!FacebookAuthorized(SecurityContext.getCurrentUser().getId())) {
 			new RedirectView("/signinfb", true).render(null, request, response);
 			return false;
 		}
@@ -84,19 +89,28 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
 	// internal helpers
 
 	// Gets a potential user ID from cookies existing on the system.
-	private User rememberUser(HttpServletRequest request,
+	private void rememberUser(HttpServletRequest request,
 			HttpServletResponse response) {
 		String userId = userCookieGenerator.readCookieValue(request);
 		if (userId == null) {
-			userId = getNewId();
+			
+			// No Cookie : no potential user found
+			return;
 		}
-		else if (!userNotFound(userId)) {
+		else if (!userIsValid(userId)) {
+			
+			// Cookie referencing an invalid user, should be removed
+			// Then proceed as if no user on system
 			userCookieGenerator.removeCookie(response);
+			return;
 						}
-		else userId = getNewId();
 		
-		//At this stage get a new user
-		return (new User(userId));
+		else  {
+			// User Id is a valid one, we check it as the current user
+			SecurityContext.setCurrentUser(new User(userId));
+			}
+		
+		
 	}
 
 	// If signout has been asked for sign out
@@ -114,19 +128,12 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
 			return false;
 	}
 
-	private boolean requestForSignIn(HttpServletRequest request) {
-		return request.getServletPath().startsWith("/signin");
-	}
 
-	private boolean requireSignIn(HttpServletRequest request,
-			HttpServletResponse response) throws Exception {
-		new RedirectView("/signin", true).render(null, request, response);
-		return false;
-	}
-
-	private boolean userNotFound(String userId) {
+	// Checks validity of userId
+	// For the moment, any non void String is considered valid
+	private boolean userIsValid(String userId) {
 		// pour premiers essais : on est toujours supposé etre un nouveau.
-		return (userId == "");
+		return (userId != "");
 	}
 
 	private boolean FacebookAuthorized(String userId) {
@@ -136,10 +143,6 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
 				.findPrimaryConnection(Facebook.class) != null;
 	}
 	
-	private static int userIncrement=0;
-	private String getNewId() {
-		userIncrement++;
-		return String.format("%s",userIncrement);
-	}
+
 
 }
