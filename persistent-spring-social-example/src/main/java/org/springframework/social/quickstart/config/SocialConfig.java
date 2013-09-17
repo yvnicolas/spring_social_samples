@@ -32,16 +32,14 @@ import org.springframework.social.connect.UsersConnectionRepository;
 import org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository;
 import org.springframework.social.connect.support.ConnectionFactoryRegistry;
 import org.springframework.social.connect.web.ConnectController;
-import org.springframework.social.connect.web.ProviderSignInController;
 import org.springframework.social.facebook.api.Facebook;
 import org.springframework.social.facebook.connect.FacebookConnectionFactory;
 import org.springframework.social.quickstart.user.SecurityContext;
-import org.springframework.social.quickstart.user.SimpleConnectionSignUp;
-import org.springframework.social.quickstart.user.SimpleSignInAdapter;
 import org.springframework.social.quickstart.user.User;
 
 /**
  * Spring Social Configuration.
+ * 
  * @author Keith Donald
  */
 @Configuration
@@ -54,64 +52,70 @@ public class SocialConfig {
 	private DataSource dataSource;
 
 	/**
-	 * When a new provider is added to the app, register its {@link ConnectionFactory} here.
+	 * When a new provider is added to the app, register its
+	 * {@link ConnectionFactory} here.
+	 * 
 	 * @see FacebookConnectionFactory
 	 */
 	@Bean
 	public ConnectionFactoryLocator connectionFactoryLocator() {
 		ConnectionFactoryRegistry registry = new ConnectionFactoryRegistry();
-		registry.addConnectionFactory(new FacebookConnectionFactory(environment.getProperty("facebook.clientId"),
-				environment.getProperty("facebook.clientSecret")));
+		registry.addConnectionFactory(new FacebookConnectionFactory(environment
+				.getProperty("facebook.clientId"), environment
+				.getProperty("facebook.clientSecret")));
 		return registry;
 	}
 
 	/**
-	 * Singleton data access object providing access to connections across all users.
+	 * Singleton data access object providing access to connections across all
+	 * users. We do not set any ConnectionSignup here compared to initial Keith
+	 * Donald project as main signup is managed by the application and there
+	 * should not be any call to the usersConnectionRepository when a user is not signed in in the application
+	 * (ie the user id is always known)
 	 */
 	@Bean
 	public UsersConnectionRepository usersConnectionRepository() {
-		JdbcUsersConnectionRepository repository = new JdbcUsersConnectionRepository(dataSource,
-				connectionFactoryLocator(), Encryptors.noOpText());
-		repository.setConnectionSignUp(new SimpleConnectionSignUp());
+		JdbcUsersConnectionRepository repository = new JdbcUsersConnectionRepository(
+				dataSource, connectionFactoryLocator(), Encryptors.noOpText());
 		return repository;
 	}
 
 	/**
-	 * Request-scoped data access object providing access to the current user's connections.
+	 * Request-scoped data access object providing access to the current user's
+	 * connections.
 	 */
 	@Bean
-	@Scope(value="request", proxyMode=ScopedProxyMode.INTERFACES)
+	@Scope(value = "request", proxyMode = ScopedProxyMode.INTERFACES)
 	public ConnectionRepository connectionRepository() {
-	    User user = SecurityContext.getCurrentUser();
-	    return usersConnectionRepository().createConnectionRepository(user.getId());
+		User user = SecurityContext.getCurrentUser();
+		return usersConnectionRepository().createConnectionRepository(
+				user.getId());
 	}
 
 	/**
-	 * A proxy to a request-scoped object representing the current user's primary Facebook account.
-	 * @throws NotConnectedException if the user is not connected to facebook.
+	 * A proxy to a request-scoped object representing the current user's
+	 * primary Facebook account.
+	 * 
+	 * @throws NotConnectedException
+	 *             if the user is not connected to facebook.
 	 */
 	@Bean
-	@Scope(value="request", proxyMode=ScopedProxyMode.INTERFACES)	
+	@Scope(value = "request", proxyMode = ScopedProxyMode.INTERFACES)
 	public Facebook facebook() {
-	    return connectionRepository().getPrimaryConnection(Facebook.class).getApi();
+		return connectionRepository().getPrimaryConnection(Facebook.class)
+				.getApi();
 	}
-	
-//	/**
-//	 * The Spring MVC Controller that allows users to sign-in with their provider accounts.
-//	 */
-//	@Bean
-//	public ProviderSignInController providerSignInController() {
-//		ProviderSignInController toReturn = new ProviderSignInController(connectionFactoryLocator(), usersConnectionRepository(),
-//				new SimpleSignInAdapter());
-//		return toReturn;
-//	}
+
+
 	/**
-	 * The standard spring MVC connection Controller, see chapter 4 of reference manual
+	 * The standard spring MVC connection Controller, see chapter 4 of reference
+	 * manual. Once the connection established, the Controller points back to /connect/facebookConnected.jsp view
+	 * This controller replaces the use of PoviderSigninController in initial Keith Donald example.
 	 */
-	  @Bean
-	    public ConnectController connectController() {
-	        return new ConnectController(connectionFactoryLocator(), 
-	            connectionRepository());
-	    }
+	@Bean
+	public ConnectController connectController() {
+		return new ConnectController(connectionFactoryLocator(),
+				connectionRepository());
+	}
 
 }
