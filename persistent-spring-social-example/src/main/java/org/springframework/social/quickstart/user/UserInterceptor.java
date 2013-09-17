@@ -56,7 +56,7 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
 		if (request.getServletPath().contains("/inscription"))
 			return true; 
 
-		if ((request.getServletPath().equals("/signin") ) ||(request.getServletPath().equals("/signin/facebook") ) || (request.getServletPath().equals("/signinfb")) )
+		if ((request.getServletPath().equals("/signin") ) ||(request.getServletPath().equals("/connect/facebook") ) || (request.getServletPath().equals("/signinfb")) )
 			return true;
 		
 		// checking whether connection do the application has been made

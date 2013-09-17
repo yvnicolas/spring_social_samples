@@ -39,7 +39,7 @@ public final class Uris {
 	public static final String SIGNINFB = "/signinfb";
 	
 	// Called by Spring Social to manage Facebook authentification
-	public static final String SPRINGFBSIGNIN = "/signin/facebook";
+	public static final String SPRINGFBSIGNIN = "/connect/facebook";
 	
 	//Thank you - good bye
 	public static final String BYE = "/bye";
