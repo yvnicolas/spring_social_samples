@@ -1,6 +1,11 @@
 Persistent Spring Social Quickstart
 ===================================
-This sample is an adaptation of Spring Social Quickstart found on the Spring Social web site  (see https://github.com/SpringSource/spring-social/wiki/Quick-Start) to enable facebook coonections to be stored in a mysql Database.
+This sample is an adaptation of Spring Social Quickstart from Keith Donald found on the Spring Social web site  (see https://github.com/SpringSource/spring-social/wiki/Quick-Start) to enable facebook coonections to be stored in a mysql Database.
+
+Originally the purpose was to be able to keep connections in a persistent manner.
+
+The main changes made have been to change the signin method from the providerSigninController initially used by Keith to a ConnectController based method.
+This enables to play with different signing flows between the application and the provider.
 
 You need to have a mysql database running and set up as follows :
 login to your mysql server as root.
