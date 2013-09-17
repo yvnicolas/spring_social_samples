@@ -13,7 +13,7 @@
 	<p>Please Signin - Signup (no difference at this stage)</p>
 
 	<%-- Needs to add the main prefix here although I do not understand why --%>
-	<form action="<%=Uris.URISPREFIX + Uris.IDPROCESS%>" method="POST">
+	<form action=<%=Uris.URISPREFIX + Uris.IDPROCESS%> method="POST">
 
 		<table>
 			<tr>

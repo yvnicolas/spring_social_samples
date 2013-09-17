@@ -30,6 +30,7 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 /**
  * Spring MVC Configuration.
+ * 
  * @author Keith Donald
  */
 @Configuration
@@ -40,9 +41,14 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
 		registry.addInterceptor(new UserInterceptor(usersConnectionRepository));
 	}
 
+	/*
+	 * Interceptors above are not called if the view controller is not added
+	 * below
+	 */
 	public void addViewControllers(ViewControllerRegistry registry) {
 		registry.addViewController(Uris.SIGNIN);
 		registry.addViewController(Uris.SIGNOUT);
+		registry.addViewController(Uris.PARTIALSIGNOUT);
 		registry.addViewController(Uris.SIGNINCONFIRM);
 		registry.addViewController(Uris.SIGNINFB);
 		registry.addViewController(Uris.APPLICATIONIDINPUT);
@@ -58,6 +64,7 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
 		return viewResolver;
 	}
 
-	private @Inject UsersConnectionRepository usersConnectionRepository;
+	private @Inject
+	UsersConnectionRepository usersConnectionRepository;
 
 }

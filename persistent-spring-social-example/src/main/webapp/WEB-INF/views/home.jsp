@@ -7,7 +7,8 @@
 	</head>
 	<body>
 	<ul>
-		<li><a href="<c:url value="<%=Uris.SIGNOUT %>" />">Sign Out</a></li>
+		<li><a href="<c:url value="<%=Uris.SIGNOUT%>" />"> Complete Sign Out</a></li>
+		<li><a href="<c:url value="<%=Uris.PARTIALSIGNOUT%>" />"> Keep Connection to FB</a></li>
 	</ul>
 	<h3>Your Facebook Friends</h3>
 	<ul>

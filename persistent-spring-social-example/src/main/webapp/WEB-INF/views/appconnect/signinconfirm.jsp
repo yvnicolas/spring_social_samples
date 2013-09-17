@@ -3,13 +3,12 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <html>
 <head>
-<title>Bye</title>
+<title>Ca Marche</title>
 </head>
 <body>
-	Thank you for testing this sample!
-
-	<form action="<c:url value="<%=Uris.MAIN %>" />">
-		<button type="submit">start again</button>
+	Bienvenue ${nom}!
+	<form action="<c:url value="<%=Uris.MAIN%>" />">
+		<button type="submit">continue</button>
 	</form>
 </body>
 </html>

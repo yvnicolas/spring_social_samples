@@ -8,7 +8,7 @@
 	<body>
 	Bonjour tout le monde!
 	
-		<form action="<c:url value="<%=Uris.APPLICATIONIDINPUT %>" />">
+		<form action="<c:url value="<%=Uris.APPLICATIONIDINPUT%>" />">
 		<button type="submit">Connect to the application</button>
 	</form>
 			
