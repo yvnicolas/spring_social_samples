@@ -1,4 +1,6 @@
 *.class
+*~
+.gitignore
 
 # Package Files #
 *.jar
