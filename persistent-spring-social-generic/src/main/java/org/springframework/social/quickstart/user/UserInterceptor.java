@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.social.connect.UsersConnectionRepository;
 import org.springframework.social.facebook.api.Facebook;
 import org.springframework.social.linkedin.api.LinkedIn;
+import org.springframework.social.quickstart.SPConnectionRetriever;
 import org.springframework.social.quickstart.config.Uris;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.springframework.web.servlet.view.RedirectView;
@@ -50,6 +51,8 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
         // Handle the requests that should go thru
         if (shouldGoThru(request))
             return true;
+        
+        SPConnectionRetriever spResolver;
 
         rememberUser(request, response);
 
@@ -66,9 +69,18 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
         // response);
         // return false;
 
-        // checking whether connection to Linkedin has been made :
+        // If no service provider defined, proced
+        try {
+            spResolver = SecurityContext.getCurrentSpResolver();
+        }
+        catch (IllegalStateException e) {
+            return true;
+            
+        }
+        // checking whether connection to current service provider has been made and if not, redirect to the correct connection URL:
         if (!SPAuthorized(SecurityContext.getCurrentUser().getId())) {
-            new RedirectView(Uris.SIGNINSP, true).render(null, request, response);
+            // TODO : need to change to redirect directly to the correct connectionURL
+            new RedirectView(spResolver.getConnectUrl(), true).render(null, request, response);
             return false;
 
         }
@@ -144,19 +156,9 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
         return (userId != "");
     }
 
-    private boolean FacebookAuthorized(String userId) {
-        // doesn't bother checking a local user database: simply checks if the
-        // userId is connected to Facebook
-        return connectionRepository.createConnectionRepository(userId).findPrimaryConnection(Facebook.class) != null;
-    }
-
-    private boolean LinkedInAuthorized(String userId) {
-        // doesn't bother checking a local user database: simply checks if the
-        // userId is connected to Facebook
-        return connectionRepository.createConnectionRepository(userId).findPrimaryConnection(LinkedIn.class) != null;
-    }
-
+    @SuppressWarnings("unchecked")
     private boolean SPAuthorized(String userId) {
-        return LinkedInAuthorized(userId);
+        return connectionRepository.createConnectionRepository(userId).findPrimaryConnection(
+                SecurityContext.getCurrentSpResolver().getSPType()) != null;
     }
 }

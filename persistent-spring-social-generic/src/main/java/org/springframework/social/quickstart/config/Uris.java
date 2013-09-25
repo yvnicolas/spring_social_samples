@@ -20,6 +20,7 @@ public final class Uris {
 	// Uris called once all connections have been established
 	public static final String WORK = "/home";
 	
+
 	//Application Connection Dance Prefix
 	public static final String APPCONNECTPREFIX="/appconnect";
 
@@ -29,6 +30,13 @@ public final class Uris {
 	// Application Id Input form
 	public static final String APPLICATIONIDINPUT = APPCONNECTPREFIX+"/subscriberinput";
 	
+	// Uri called to select service provider
+    public static final String SPCHOICE = APPCONNECTPREFIX +"/spchoice";
+
+    // Confirmation of Service Provider choice
+    public static final String SPCONFIRM = APPCONNECTPREFIX +"/spchoiceconfirm";
+
+	
 	// Processing Application Id post Input
 	public static final String IDPROCESS=APPCONNECTPREFIX+"/inscription";
 	
@@ -36,8 +44,9 @@ public final class Uris {
 	// Called once application signin has been confirmed
 	public static final String SIGNINCONFIRM = APPCONNECTPREFIX+"/signinconfirm";
 	
-	// Application page proposing to connect to serviceProvider
-	public static final String SIGNINSP = APPCONNECTPREFIX+"/signinfb";
+	// Application pages proposing to connect to serviceProvider
+	public static final String SIGNINFB = APPCONNECTPREFIX+"/signinfb";
+	public static final String SIGNINLI = APPCONNECTPREFIX+"/signinli";
 	
 	//Thank you - good bye
 	public static final String BYE = APPCONNECTPREFIX+"/bye";

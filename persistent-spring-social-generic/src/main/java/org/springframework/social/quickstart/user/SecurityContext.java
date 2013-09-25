@@ -15,13 +15,17 @@
  */
 package org.springframework.social.quickstart.user;
 
+import org.springframework.social.quickstart.SPConnectionRetriever;
+
 /**
- * Simple SecurityContext that stores the currently signed-in connection in a thread local.
+ * SecurityContext that stores the currently signed-in connection in a thread local.
+ * As well as the active service provider resolver
  * @author Keith Donald
  */
 public final class SecurityContext {
 
 	private static final ThreadLocal<User> currentUser = new ThreadLocal<User>();
+	private static final ThreadLocal<SPConnectionRetriever> currentSpResolver = new ThreadLocal<SPConnectionRetriever>();
 
 	public static User getCurrentUser() {
 		User user = currentUser.get();
@@ -41,6 +45,20 @@ public final class SecurityContext {
 
 	public static void remove() {
 		currentUser.remove();
+		currentSpResolver.remove();
 	}
+	
+	public static SPConnectionRetriever getCurrentSpResolver() {
+	    SPConnectionRetriever spResolver = currentSpResolver.get();
+	    if (spResolver == null) {
+            throw new IllegalStateException("No Service Provider Resolver currently defined");
+        }
+	    return spResolver;
+	}
+	
+	public static void setCurrentSpResolver (SPConnectionRetriever spResolver) {
+	    currentSpResolver.set(spResolver);
+	}
+	
 
 }

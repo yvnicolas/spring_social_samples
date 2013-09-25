@@ -18,6 +18,7 @@ package org.springframework.social.quickstart.user;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.social.ApiBinding;
 import org.springframework.social.connect.UsersConnectionRepository;
 import org.springframework.social.facebook.api.Facebook;
 import org.springframework.social.linkedin.api.LinkedIn;
@@ -32,11 +33,12 @@ import org.springframework.web.servlet.view.RedirectView;
  * 
  * NB : this user interceptor is actually invoked only if the view is added in the registry, see
  * WebMVC Config
- * 
+ *  
  * @author Yves Nicolas adapted from Keith Donald Samples
  */
 public final class UserInterceptor extends HandlerInterceptorAdapter {
 
+    
     private final UsersConnectionRepository connectionRepository;
 
     private final UserCookieGenerator userCookieGenerator = new UserCookieGenerator();
@@ -156,7 +158,9 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
         return connectionRepository.createConnectionRepository(userId).findPrimaryConnection(LinkedIn.class) != null;
     }
 
+   
     private boolean SPAuthorized(String userId) {
         return LinkedInAuthorized(userId);
     }
+  
 }

@@ -19,6 +19,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.social.connect.ConnectionFactory;
 import org.springframework.social.connect.ConnectionFactoryLocator;
 import org.springframework.social.connect.support.OAuth2ConnectionFactory;
@@ -48,45 +49,54 @@ import org.springframework.web.servlet.ModelAndView;
  */
 @Controller
 public class HomeController {
+  
+   @Autowired
+   SPConnectionRetriever FBConnectionRetriever;
+   
+   @Autowired
+   SPConnectionRetriever LIConnectionRetriever;
+   
+    @RequestMapping(value = Uris.MAIN, method = RequestMethod.GET)
+    public String home(Model model) {
+        List<Person> connections;
+        try {
+         connections = SecurityContext.getCurrentSpResolver().getConnections();
+        model.addAttribute("connections", connections);
+        model.addAttribute("serviceProvider", SecurityContext.getCurrentSpResolver().getActiveSP().toString());
+        }
+        catch (IllegalStateException e) {
+            // SP not defined, no contacts to show"
+            model.addAttribute("serviceProvider", "No Service Provider selected : no contact to show");
+        }
+        return Uris.WORK;
+    }
 
-//	private final Facebook facebook;
-	private final LinkedIn linkedIn;
+    @RequestMapping(value = Uris.IDPROCESS, method = RequestMethod.POST)
+    public ModelAndView login(@RequestParam("id") String id) {
 
+        SecurityContext.setCurrentUser(new User(id));
+        ModelAndView mav = new ModelAndView(Uris.SIGNINCONFIRM);
+        mav.addObject("nom", id);
+        return mav;
+    }
+    
+    @RequestMapping(value = Uris.SPCHOICE, method = RequestMethod.POST)
+    public ModelAndView Spchoice (@RequestParam("sp") String sp) {
 
-//	@Inject
-//	public HomeController(Facebook facebook) {
-//		this.facebook = facebook;
-//	}
-	
-	   @Inject
-	    public HomeController(LinkedIn linkedIn) {
-	        this.linkedIn = linkedIn;
-	    }
+        ServiceProviders spasenum = ServiceProviders.valueOf(sp);
+        ModelAndView mav = new ModelAndView(Uris.SPCONFIRM);
+        switch (spasenum) {
+        case FACEBOOK :
+            SecurityContext.setCurrentSpResolver(FBConnectionRetriever);
+           
+            break;
+        case LINKEDIN :
+            SecurityContext.setCurrentSpResolver(LIConnectionRetriever);     
+            break;
+        }
+        mav.addObject("sp", sp);
+        return mav;
+    }
 
-
-//	@RequestMapping(value = Uris.MAIN, method = RequestMethod.GET)
-//	public String home(Model model) {
-//		List<Reference> friends = facebook.friendOperations().getFriends();
-//		model.addAttribute("friends", friends);
-//		return Uris.WORK;
-//	}
-	
-	   @RequestMapping(value = Uris.MAIN, method = RequestMethod.GET)
-	    public String home(Model model) {
-	        List<LinkedInProfile> connections = linkedIn.connectionOperations().getConnections();
-	        model.addAttribute("connections", connections);
-	        return Uris.WORK;
-	    }
-	@RequestMapping(value=Uris.IDPROCESS, method = RequestMethod.POST) 
-		public ModelAndView login (@RequestParam("id") String id){
-		
-		SecurityContext.setCurrentUser(new User(id));
-		ModelAndView mav = new ModelAndView(Uris.SIGNINCONFIRM);
-		mav.addObject("nom", id);
-		return mav;
-	}
-
-	
-	
 
 }
