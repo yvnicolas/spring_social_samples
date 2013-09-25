@@ -51,7 +51,7 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
         // Handle the requests that should go thru
         if (shouldGoThru(request))
             return true;
-        
+
         SPConnectionRetriever spResolver;
 
         rememberUser(request, response);
@@ -72,14 +72,15 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
         // If no service provider defined, proced
         try {
             spResolver = SecurityContext.getCurrentSpResolver();
-        }
-        catch (IllegalStateException e) {
+        } catch (IllegalStateException e) {
             return true;
-            
+
         }
-        // checking whether connection to current service provider has been made and if not, redirect to the correct connection URL:
+        // checking whether connection to current service provider has been made and if not,
+        // redirect to the correct connection URL:
         if (!SPAuthorized(SecurityContext.getCurrentUser().getId())) {
-            // TODO : need to change to redirect directly to the correct connectionURL
+            // TODO : Modify following to avoid stopping by the confirmation view (directly update
+            // the request?)
             new RedirectView(spResolver.getConnectUrl(), true).render(null, request, response);
             return false;
 
@@ -138,9 +139,16 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
     // If signout has been asked for sign out
     private boolean handleSignOut(HttpServletRequest request, HttpServletResponse response) {
         if (SecurityContext.userSignedIn() && request.getServletPath().startsWith(Uris.SIGNOUT)) {
-            if (request.getServletPath().equals(Uris.SIGNOUT)) {
-                connectionRepository.createConnectionRepository(SecurityContext.getCurrentUser().getId())
-                        .removeConnections("facebook");
+            if (request.getServletPath().equals(Uris.PARTIALSIGNOUT)) {
+                SPConnectionRetriever spResolver;
+                try {
+                    spResolver = SecurityContext.getCurrentSpResolver();
+                    connectionRepository.createConnectionRepository(SecurityContext.getCurrentUser().getId())
+                            .removeConnections(spResolver.getActiveSP().toString().toLowerCase());
+                    SecurityContext.removesp();
+                } catch (IllegalStateException e) {
+                }
+                return false;
             }
             // userCookieGenerator.removeCookie(response);
             SecurityContext.remove();

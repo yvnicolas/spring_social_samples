@@ -7,8 +7,8 @@
 	</head>
 	<body>
 	<ul>
-		<li><a href="<c:url value="<%=Uris.SIGNOUT%>" />"> Complete Sign Out</a></li>
-		<li><a href="<c:url value="<%=Uris.PARTIALSIGNOUT%>" />"> Keep Connection to FB</a></li>
+		<li><a href="<c:url value="<%=Uris.SIGNOUT%>" />"> Application Sign Out</a></li>
+		<li><a href="<c:url value="<%=Uris.PARTIALSIGNOUT%>" />"> Disconnect from current service provider</a></li>
 	</ul>
 	
 	<%@ include file="serviceproviderChoice.jsp"%>
