@@ -27,20 +27,24 @@ import org.springframework.social.quickstart.offline.User;
  * @author Yves Nicolas
  */
 @Configuration
-public class TestConfigMyFBFactory {
+public class TestConfigMySPResolverFactory {
 
+    
+    // Has connections to both facebook and linked in
     @Bean
     @Scope("prototype")
     public User yves() {
         return new User("yves@dynamease");
     }
 
+    // Has connections only to facebook
     @Bean
     @Scope("prototype")
     public User pauline() {
         return new User("pauline");
     }
 
+    // Has no connection at all
     @Bean
     @Scope("prototype")
     public User kouser() {

@@ -33,6 +33,7 @@ import org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository;
 import org.springframework.social.connect.support.ConnectionFactoryRegistry;
 import org.springframework.social.facebook.api.Facebook;
 import org.springframework.social.facebook.connect.FacebookConnectionFactory;
+import org.springframework.social.linkedin.connect.LinkedInConnectionFactory;
 import org.springframework.social.quickstart.offline.FacebookOffline;
 import org.springframework.social.quickstart.offline.User;
 
@@ -41,43 +42,41 @@ import org.springframework.social.quickstart.offline.User;
  * 
  * @author Keith Donald
  */
-    @Configuration
-    public class SocialConfig {
-    
-    	@Inject
-    	private Environment environment;
-    
-    	@Inject
-    	private DataSource dataSource;
-    
-    	/**
-    	 * When a new provider is added to the app, register its
-    	 * {@link ConnectionFactory} here.
-    	 * 
-    	 * @see FacebookConnectionFactory
-    	 */
-    	@Bean
-    	public ConnectionFactoryLocator connectionFactoryLocator() {
-    		ConnectionFactoryRegistry registry = new ConnectionFactoryRegistry();
-    		registry.addConnectionFactory(new FacebookConnectionFactory(environment
-    				.getProperty("facebook.clientId"), environment
-    				.getProperty("facebook.clientSecret")));
-    		return registry;
-    	}
-    
-    	/**
-    	 * Singleton data access object providing access to connections across all
-    	 * users. We do not set any ConnectionSignup here compared to initial Keith
-    	 * Donald project as main signup is managed by the application and there
-    	 * should not be any call to the usersConnectionRepository when a user is not signed in in the application
-    	 * (ie the user id is always known)
-    	 */
-    	@Bean
-    	public UsersConnectionRepository usersConnectionRepository() {
-    		JdbcUsersConnectionRepository repository = new JdbcUsersConnectionRepository(
-    				dataSource, connectionFactoryLocator(), Encryptors.noOpText());
-    		return repository;
-    	}
-    
-    
+@Configuration
+public class SocialConfig {
+
+    @Inject
+    private Environment environment;
+
+    @Inject
+    private DataSource dataSource;
+
+    /**
+     * When a new provider is added to the app, register its {@link ConnectionFactory} here.
+     * 
+     * @see FacebookConnectionFactory
+     */
+    @Bean
+    public ConnectionFactoryLocator connectionFactoryLocator() {
+        ConnectionFactoryRegistry registry = new ConnectionFactoryRegistry();
+        registry.addConnectionFactory(new FacebookConnectionFactory(environment.getProperty("facebook.clientId"),
+                environment.getProperty("facebook.clientSecret")));
+        registry.addConnectionFactory(new LinkedInConnectionFactory(environment.getProperty("linkedin.consumerKey"),
+                environment.getProperty("linkedin.consumerSecret")));
+        return registry;
     }
+
+    /**
+     * Singleton data access object providing access to connections across all users. We do not set
+     * any ConnectionSignup here compared to initial Keith Donald project as main signup is managed
+     * by the application and there should not be any call to the usersConnectionRepository when a
+     * user is not signed in in the application (ie the user id is always known)
+     */
+    @Bean
+    public UsersConnectionRepository usersConnectionRepository() {
+        JdbcUsersConnectionRepository repository = new JdbcUsersConnectionRepository(dataSource,
+                connectionFactoryLocator(), Encryptors.noOpText());
+        return repository;
+    }
+
+}
