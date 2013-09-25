@@ -63,17 +63,18 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
             new RedirectView(Uris.SIGNIN, true).render(null, request, response);
             return false;
         }
-        // // checking whether connection to facebook has been made :
-        // if (!FacebookAuthorized(SecurityContext.getCurrentUser().getId())) {
-        // new RedirectView(Uris.SIGNINFB, true).render(null, request,
-        // response);
-        // return false;
+        
+        // Signing out
+        if (handleSignOut(request, response)) {
+            return false;
+        }
+
 
         // If no service provider defined, proced
         try {
             spResolver = SecurityContext.getCurrentSpResolver();
         } catch (IllegalStateException e) {
-            return true;
+            return true; 
 
         }
         // checking whether connection to current service provider has been made and if not,
@@ -85,12 +86,7 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
             return false;
 
         }
-        // Signing out
-        if (handleSignOut(request, response)) {
-            new RedirectView(Uris.BYE, true).render(null, request, response);
-            return false;
-        }
-
+ 
         // At this stage, we can proceed to the regular controller as signing is
         // effective
         return true;
@@ -137,7 +133,7 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
     }
 
     // If signout has been asked for sign out
-    private boolean handleSignOut(HttpServletRequest request, HttpServletResponse response) {
+    private boolean handleSignOut(HttpServletRequest request, HttpServletResponse response) throws Exception {
         if (SecurityContext.userSignedIn() && request.getServletPath().startsWith(Uris.SIGNOUT)) {
             if (request.getServletPath().equals(Uris.PARTIALSIGNOUT)) {
                 SPConnectionRetriever spResolver;
@@ -148,10 +144,12 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
                     SecurityContext.removesp();
                 } catch (IllegalStateException e) {
                 }
-                return false;
+                new RedirectView(Uris.MAIN, true).render(null, request, response);
+                return true;
             }
             // userCookieGenerator.removeCookie(response);
             SecurityContext.remove();
+            new RedirectView(Uris.BYE, true).render(null, request, response);
             return true;
         } else
             return false;
