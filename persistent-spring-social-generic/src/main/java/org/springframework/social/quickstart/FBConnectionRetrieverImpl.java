@@ -40,16 +40,27 @@ public class FBConnectionRetrieverImpl implements SPConnectionRetriever {
         return ServiceProviders.FACEBOOK;
     }
 
-    @SuppressWarnings("rawtypes")
-    @Override
-    public Class getSPType() {
-          return Facebook.class;
-    }
+//    @SuppressWarnings("rawtypes")
+//    @Override
+//    public Class getSPType() {
+//          return Facebook.class;
+//    }
 
     @Override
     public String getConnectUrl() {
         
         return Uris.SIGNINFB;
+    }
+
+    @Override
+    public boolean isconnected() {
+       
+        boolean toReturn = false;
+        try {
+       toReturn =facebook.isAuthorized();
+        }
+        catch (Exception e) {}
+        return toReturn;
     }
 
 }

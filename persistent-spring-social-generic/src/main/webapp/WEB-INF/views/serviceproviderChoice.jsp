@@ -7,7 +7,7 @@
 		<ul class="center">
 			<li class="has-form">
 				<form action="<c:url value="<%=Uris.SPCHOICE%>" />" method="POST">
-					<button type="submit">View LinkedIn</button>
+					<button type="submit" method = "POST">View LinkedIn</button>
 					<input type="hidden" name="sp" value="LINKEDIN" />
 				</form>
 			</li>

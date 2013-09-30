@@ -18,6 +18,8 @@ package org.springframework.social.quickstart;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.social.connect.ConnectionFactory;
@@ -39,6 +41,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
 /**
  * Simple little @Controller that invokes Facebook and renders the result. The
@@ -56,7 +59,9 @@ public class HomeController {
    @Autowired
    SPConnectionRetriever LIConnectionRetriever;
    
-    @RequestMapping(value = Uris.MAIN, method = RequestMethod.GET)
+   
+   
+    @RequestMapping(value = Uris.MAIN)
     public String home(Model model) {
         List<Person> connections;
         try {
@@ -80,23 +85,40 @@ public class HomeController {
         return mav;
     }
     
+    
+    // Changer pour retourner un redirectview vers la bonne connexion et les bons paramètres si jamais on n'est pas connecté au sp.
     @RequestMapping(value = Uris.SPCHOICE, method = RequestMethod.POST)
-    public ModelAndView Spchoice (@RequestParam("sp") String sp) {
+    public RedirectView Spchoice (@RequestParam("sp") String sp) {
 
+        
+        // Rajouter ici le check si SP authorized.
+        // ptetre à traiter dans le FBConnectionRetriever null on oun
+        //si facebook null : on n'est pas connecté.
         ServiceProviders spasenum = ServiceProviders.valueOf(sp);
-        ModelAndView mav = new ModelAndView(Uris.SPCONFIRM);
+        RedirectView toReturn;
+        SPConnectionRetriever spResolver=null;
         switch (spasenum) {
         case FACEBOOK :
-            SecurityContext.setCurrentSpResolver(FBConnectionRetriever);
-           
+            spResolver = FBConnectionRetriever;   
             break;
         case LINKEDIN :
-            SecurityContext.setCurrentSpResolver(LIConnectionRetriever);     
+            spResolver = LIConnectionRetriever;     
             break;
         }
-        mav.addObject("sp", sp);
-        return mav;
+        SecurityContext.setCurrentSpResolver(spResolver);
+        if (spResolver.isconnected())
+            toReturn  = new RedirectView(Uris.MAIN, true);
+        else
+            toReturn = new RedirectView(spResolver.getConnectUrl(), true);
+            
+        return toReturn;
     }
 
+//    @RequestMapping(value = Uris.SIGNINLI)
+//    public RedirectView liSignin(HttpServletRequest request, HttpServletResponse response) {
+//        request.setAttribute("scope", "r_fullprofile,r_network");
+//         return new RedirectView(Uris.SPRINGLISIGNIN, true);
+//       
+//           }
 
 }

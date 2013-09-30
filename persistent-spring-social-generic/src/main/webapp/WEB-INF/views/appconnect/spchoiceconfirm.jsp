@@ -7,7 +7,7 @@
 </head>
 <body>
 	Vous avez choisi ${sp}!
-	<form action="<c:url value="<%=Uris.MAIN%>" />">
+	<form method="POST" action="<c:url value="<%=Uris.MAIN%>" />">
 		<button type="submit">continue</button>
 	</form>
 </body>

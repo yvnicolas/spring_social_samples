@@ -70,22 +70,23 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
         }
 
 
-        // If no service provider defined, proced
-        try {
-            spResolver = SecurityContext.getCurrentSpResolver();
-        } catch (IllegalStateException e) {
-            return true; 
-
-        }
-        // checking whether connection to current service provider has been made and if not,
-        // redirect to the correct connection URL:
-        if (!SPAuthorized(SecurityContext.getCurrentUser().getId())) {
-            // TODO : Modify following to avoid stopping by the confirmation view (directly update
-            // the request?)
-            new RedirectView(spResolver.getConnectUrl(), true).render(null, request, response);
-            return false;
-
-        }
+//        // If no service provider defined, proced
+//        try {
+//            spResolver = SecurityContext.getCurrentSpResolver();
+//        } catch (IllegalStateException e) {
+//            return true; 
+//
+//        }
+//        // checking whether connection to current service provider has been made and if not,
+//        // redirect to the correct connection URL:
+//        if (!SPAuthorized(SecurityContext.getCurrentUser().getId())) {
+//            // TODO : Modify following to avoid stopping by the confirmation view (directly update
+//            // the request?)
+//            new RedirectView(spResolver.getConnectUrl(), true);
+////            new RedirectView(spResolver.getConnectUrl(), true).render(null, request, response);
+//            return false;
+//
+//        }
  
         // At this stage, we can proceed to the regular controller as signing is
         // effective
@@ -162,9 +163,9 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
         return (userId != "");
     }
 
-    @SuppressWarnings("unchecked")
-    private boolean SPAuthorized(String userId) {
-        return connectionRepository.createConnectionRepository(userId).findPrimaryConnection(
-                SecurityContext.getCurrentSpResolver().getSPType()) != null;
-    }
+//    @SuppressWarnings("unchecked")
+//    private boolean SPAuthorized(String userId) {
+//        return connectionRepository.createConnectionRepository(userId).findPrimaryConnection(
+//                SecurityContext.getCurrentSpResolver().getSPType()) != null;
+//    }
 }

@@ -8,8 +8,10 @@ public interface SPConnectionRetriever {
     
     public ServiceProviders getActiveSP();
     
-    @SuppressWarnings("rawtypes")
-    public java.lang.Class getSPType();
+//    @SuppressWarnings("rawtypes")
+//    public java.lang.Class getSPType();
     
     public String getConnectUrl();
+    
+    public boolean isconnected();
 }

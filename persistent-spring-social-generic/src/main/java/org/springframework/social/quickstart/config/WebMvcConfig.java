@@ -41,9 +41,7 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
         registry.addInterceptor(new UserInterceptor(usersConnectionRepository));
     }
 
-    /*
-     * Interceptors above are not called if the view controller is not added below
-     */
+   
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController(Uris.SIGNIN);
         registry.addViewController(Uris.SIGNOUT);

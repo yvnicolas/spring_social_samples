@@ -15,7 +15,10 @@
  */
 package org.springframework.social.quickstart.user;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.social.connect.UsersConnectionRepository;
 import org.springframework.social.quickstart.SPConnectionRetriever;
+import org.springframework.stereotype.Component;
 
 /**
  * SecurityContext that stores the currently signed-in connection in a thread local. As well as the
@@ -23,10 +26,14 @@ import org.springframework.social.quickstart.SPConnectionRetriever;
  * 
  * @author Keith Donald
  */
+
 public final class SecurityContext {
 
     private static final ThreadLocal<User> currentUser = new ThreadLocal<User>();
     private static final ThreadLocal<SPConnectionRetriever> currentSpResolver = new ThreadLocal<SPConnectionRetriever>();
+    
+    @Autowired
+    private final UsersConnectionRepository connectionRepository;
 
     public static User getCurrentUser() {
         User user = currentUser.get();
@@ -34,6 +41,11 @@ public final class SecurityContext {
             throw new IllegalStateException("No user is currently signed in");
         }
         return user;
+    }
+
+    public SecurityContext(UsersConnectionRepository connectionRepository) {
+        super();
+        this.connectionRepository = connectionRepository;
     }
 
     public static void setCurrentUser(User user) {
@@ -60,6 +72,16 @@ public final class SecurityContext {
         }
         return spResolver;
     }
+    
+
+   public boolean SPAuthorized() {
+      if (!userSignedIn())
+          return false;
+      SPConnectionRetriever spResolver = currentSpResolver.get();
+      if (spResolver == null)
+          return false;
+      return  spResolver.isconnected();
+  }
 
     public static void setCurrentSpResolver(SPConnectionRetriever spResolver) {
         currentSpResolver.set(spResolver);
