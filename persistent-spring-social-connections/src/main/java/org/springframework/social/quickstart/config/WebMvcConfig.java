@@ -45,7 +45,6 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController(Uris.SIGNIN);
         registry.addViewController(Uris.SIGNOUT);
-        registry.addViewController(Uris.PARTIALSIGNOUT);
         registry.addViewController(Uris.SIGNINCONFIRM);
         registry.addViewController(Uris.SIGNINFB);
         registry.addViewController(Uris.SIGNINLI);

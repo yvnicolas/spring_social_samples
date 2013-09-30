@@ -38,12 +38,9 @@ import org.springframework.web.servlet.view.RedirectView;
  */
 public final class UserInterceptor extends HandlerInterceptorAdapter {
 
-    private final UsersConnectionRepository connectionRepository;
-
     private final UserCookieGenerator userCookieGenerator = new UserCookieGenerator();
 
     public UserInterceptor(UsersConnectionRepository connectionRepository) {
-        this.connectionRepository = connectionRepository;
     }
 
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -52,11 +49,7 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
         if (shouldGoThru(request))
             return true;
 
-        SPConnectionRetriever spResolver;
-
         rememberUser(request, response);
-
-        // Handle the requests that should go thru
 
         // checking whether connection do the application has been made
         if (!SecurityContext.userSignedIn()) {
@@ -69,24 +62,6 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
             return false;
         }
 
-
-//        // If no service provider defined, proced
-//        try {
-//            spResolver = SecurityContext.getCurrentSpResolver();
-//        } catch (IllegalStateException e) {
-//            return true; 
-//
-//        }
-//        // checking whether connection to current service provider has been made and if not,
-//        // redirect to the correct connection URL:
-//        if (!SPAuthorized(SecurityContext.getCurrentUser().getId())) {
-//            // TODO : Modify following to avoid stopping by the confirmation view (directly update
-//            // the request?)
-//            new RedirectView(spResolver.getConnectUrl(), true);
-////            new RedirectView(spResolver.getConnectUrl(), true).render(null, request, response);
-//            return false;
-//
-//        }
  
         // At this stage, we can proceed to the regular controller as signing is
         // effective
@@ -106,7 +81,6 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
             throws Exception {
 
-        // SecurityContext.remove();
     }
 
     // internal helpers
@@ -133,22 +107,9 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
 
     }
 
-    // If signout has been asked for sign out
+    // If signout has been asked 
     private boolean handleSignOut(HttpServletRequest request, HttpServletResponse response) throws Exception {
         if (SecurityContext.userSignedIn() && request.getServletPath().startsWith(Uris.SIGNOUT)) {
-            if (request.getServletPath().equals(Uris.PARTIALSIGNOUT)) {
-                SPConnectionRetriever spResolver;
-                try {
-                    spResolver = SecurityContext.getCurrentSpResolver();
-                    connectionRepository.createConnectionRepository(SecurityContext.getCurrentUser().getId())
-                            .removeConnections(spResolver.getActiveSP().toString().toLowerCase());
-                    SecurityContext.removesp();
-                } catch (IllegalStateException e) {
-                }
-                new RedirectView(Uris.MAIN, true).render(null, request, response);
-                return true;
-            }
-            // userCookieGenerator.removeCookie(response);
             SecurityContext.remove();
             new RedirectView(Uris.BYE, true).render(null, request, response);
             return true;
@@ -159,13 +120,7 @@ public final class UserInterceptor extends HandlerInterceptorAdapter {
     // Checks validity of userId
     // For the moment, any non void String is considered valid
     private boolean userIsValid(String userId) {
-        // pour premiers essais : on est toujours supposé etre un nouveau.
+        // Any userId is valid except a void string
         return (userId != "");
     }
-
-//    @SuppressWarnings("unchecked")
-//    private boolean SPAuthorized(String userId) {
-//        return connectionRepository.createConnectionRepository(userId).findPrimaryConnection(
-//                SecurityContext.getCurrentSpResolver().getSPType()) != null;
-//    }
 }

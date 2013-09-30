@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.springframework.social.connect.NotConnectedException;
 import org.springframework.social.linkedin.api.LinkedIn;
 import org.springframework.social.linkedin.api.LinkedInProfile;
 import org.springframework.social.quickstart.config.Uris;
@@ -15,6 +14,8 @@ import org.springframework.stereotype.Component;
 public class LIConnectionRetrieverImpl implements SPConnectionRetriever {
 
     private LinkedIn linkedIn;
+
+    static final String DEFAULTPERMISSIONS = "r_fullprofile,r_network";
 
     @Inject
     public LIConnectionRetrieverImpl(LinkedIn linkedIn) {
@@ -36,27 +37,28 @@ public class LIConnectionRetrieverImpl implements SPConnectionRetriever {
 
         return ServiceProviders.LINKEDIN;
     }
-//
-//    @SuppressWarnings("rawtypes")
-//    @Override
-//    public Class getSPType() {
-//          return LinkedIn.class;
-//    }
 
     @Override
     public String getConnectUrl() {
-        
-        return Uris.SIGNINLI;
+
+        return Uris.SPRINGLISIGNIN;
     }
 
     @Override
     public boolean isconnected() {
         boolean toReturn = false;
         try {
-       toReturn =linkedIn.isAuthorized();
+            toReturn = linkedIn.isAuthorized();
+        } catch (Exception e) {
         }
-        catch (Exception e) {}
         return toReturn;
+    }
+
+    @Override
+    public String getPermissions() {
+        // TODO : ameliorer en retournant les permissions autorisees si connectees
+        return DEFAULTPERMISSIONS;
+
     }
 
 }

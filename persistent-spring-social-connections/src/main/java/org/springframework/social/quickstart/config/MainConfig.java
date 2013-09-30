@@ -15,6 +15,7 @@
  */
 package org.springframework.social.quickstart.config;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
 
 import org.springframework.context.annotation.Bean;
@@ -22,24 +23,30 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 /**
  * Main configuration class for the application.
  * Turns on @Component scanning, loads externalized application.properties, and sets up the database.
- * @author Keith Donald
+ * @author Yves Nicolas
  */
 @Configuration
 @ComponentScan(basePackages = "org.springframework.social.quickstart", excludeFilters = { @Filter(Configuration.class) })
 @PropertySource("classpath:org/springframework/social/quickstart/config/application.properties")
 public class MainConfig {
 
+    
+
+    @Inject
+    private Environment environment;
+    
 	@Bean
 	public DataSource datasource() {
-		DriverManagerDataSource toReturn = new DriverManagerDataSource("jdbc:mysql://localhost:3306/spring_social");
+		DriverManagerDataSource toReturn = new DriverManagerDataSource("jdbc:mysql://localhost:3306/"+environment.getProperty("database.name"));
 		toReturn.setDriverClassName("com.mysql.jdbc.Driver");
-		toReturn.setUsername("spring");
-		toReturn.setPassword("spring");
+		toReturn.setUsername(environment.getProperty("database.user"));
+		toReturn.setPassword(environment.getProperty("database.pwd"));
 		return toReturn;
 			
 	}

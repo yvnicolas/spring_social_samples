@@ -15,23 +15,12 @@
  */
 package org.springframework.social.quickstart;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.social.connect.ConnectionFactory;
-import org.springframework.social.connect.ConnectionFactoryLocator;
-import org.springframework.social.connect.support.OAuth2ConnectionFactory;
+import org.springframework.social.connect.UsersConnectionRepository;
 import org.springframework.social.facebook.api.Facebook;
-import org.springframework.social.facebook.api.Reference;
-import org.springframework.social.facebook.connect.FacebookConnectionFactory;
-import org.springframework.social.linkedin.api.LinkedIn;
-import org.springframework.social.linkedin.api.LinkedInProfile;
-import org.springframework.social.oauth2.OAuth2Operations;
-import org.springframework.social.oauth2.OAuth2Parameters;
 import org.springframework.social.quickstart.config.Uris;
 import org.springframework.social.quickstart.user.SecurityContext;
 import org.springframework.social.quickstart.user.User;
@@ -40,85 +29,121 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 /**
- * Simple little @Controller that invokes Facebook and renders the result. The
- * injected {@link Facebook} reference is configured with the required
- * authorization credentials for the current user behind the scenes.
+ * Simple little @Controller that invokes Facebook and renders the result. The injected
+ * {@link Facebook} reference is configured with the required authorization credentials for the
+ * current user behind the scenes.
  * 
  * @author Keith Donald
  */
 @Controller
 public class HomeController {
+
+    @Autowired
+    SPResolver SPBank;
+    
+    @Autowired
+    private UsersConnectionRepository connectionRepository;
+
+
   
-   @Autowired
-   SPConnectionRetriever FBConnectionRetriever;
-   
-   @Autowired
-   SPConnectionRetriever LIConnectionRetriever;
-   
-   
-   
+
+
     @RequestMapping(value = Uris.MAIN)
     public String home(Model model) {
-        List<Person> connections;
-        try {
-         connections = SecurityContext.getCurrentSpResolver().getConnections();
-        model.addAttribute("connections", connections);
-        model.addAttribute("serviceProvider", SecurityContext.getCurrentSpResolver().getActiveSP().toString());
+        List <SPInfo> SPStatusList = new ArrayList<SPInfo>();
+        for (ServiceProviders sp : ServiceProviders.values()) {
+            SPConnectionRetriever spAccess = SPBank.getSPConnection(sp);
+            SPStatusList.add(new SPInfo(sp.toString(), spAccess.isconnected(), spAccess.getPermissions(),spAccess.getConnectUrl()));
         }
-        catch (IllegalStateException e) {
-            // SP not defined, no contacts to show"
-            model.addAttribute("serviceProvider", "No Service Provider selected : no contact to show");
-        }
+        
+        model.addAttribute("nom", SecurityContext.getCurrentUser().getId());
+           model.addAttribute("serviceProviders", SPStatusList);
+     
         return Uris.WORK;
     }
 
     @RequestMapping(value = Uris.IDPROCESS, method = RequestMethod.POST)
-    public ModelAndView login(@RequestParam("id") String id) {
+    public RedirectView login(@RequestParam("id") String id) {
 
         SecurityContext.setCurrentUser(new User(id));
-        ModelAndView mav = new ModelAndView(Uris.SIGNINCONFIRM);
-        mav.addObject("nom", id);
-        return mav;
+        return new RedirectView(Uris.URISPREFIX + Uris.MAIN);
     }
     
-    
-    // Changer pour retourner un redirectview vers la bonne connexion et les bons paramètres si jamais on n'est pas connecté au sp.
-    @RequestMapping(value = Uris.SPCHOICE, method = RequestMethod.POST)
-    public RedirectView Spchoice (@RequestParam("sp") String sp) {
+    @RequestMapping(value = Uris.DISCONNECT, method = RequestMethod.POST)
+    public RedirectView disconnect(@RequestParam("sp") ServiceProviders sp) {
 
-        
-        // Rajouter ici le check si SP authorized.
-        // ptetre à traiter dans le FBConnectionRetriever null on oun
-        //si facebook null : on n'est pas connecté.
-        ServiceProviders spasenum = ServiceProviders.valueOf(sp);
-        RedirectView toReturn;
-        SPConnectionRetriever spResolver=null;
-        switch (spasenum) {
-        case FACEBOOK :
-            spResolver = FBConnectionRetriever;   
-            break;
-        case LINKEDIN :
-            spResolver = LIConnectionRetriever;     
-            break;
+      connectionRepository.createConnectionRepository(SecurityContext.getCurrentUser().getId())
+      .removeConnections(sp.toString().toLowerCase());
+
+        return new RedirectView(Uris.URISPREFIX + Uris.MAIN);
+    }
+
+    
+
+    /**
+     * Rendering bean class used to exchange info with the JSP
+     * @author Yves Nicolas
+     *
+     */
+    public class SPInfo {
+        private String name;
+        private boolean connected;
+        private String permissions;
+        private String URL;
+       
+
+        public SPInfo(String name, boolean isConnected, String permissions, String URL) {
+            super();
+            this.name = name;
+            this.connected = isConnected;
+            this.permissions = permissions;
+            this.URL = URL;
         }
-        SecurityContext.setCurrentSpResolver(spResolver);
-        if (spResolver.isconnected())
-            toReturn  = new RedirectView(Uris.MAIN, true);
-        else
-            toReturn = new RedirectView(spResolver.getConnectUrl(), true);
-            
-        return toReturn;
-    }
 
-//    @RequestMapping(value = Uris.SIGNINLI)
-//    public RedirectView liSignin(HttpServletRequest request, HttpServletResponse response) {
-//        request.setAttribute("scope", "r_fullprofile,r_network");
-//         return new RedirectView(Uris.SPRINGLISIGNIN, true);
-//       
-//           }
+
+        public String getName() {
+            return name;
+        }
+
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+
+        public boolean isConnected() {
+            return connected;
+        }
+
+
+        public void setConnected(boolean isConnected) {
+            this.connected = isConnected;
+        }
+
+
+        public String getPermissions() {
+            return permissions;
+        }
+
+
+        public void setPermissions(String permissions) {
+            this.permissions = permissions;
+        }
+
+
+        public String getURL() {
+            return URL;
+        }
+
+
+        public void setURL(String uRL) {
+            URL = uRL;
+        }
+        
+
+    }
 
 }
